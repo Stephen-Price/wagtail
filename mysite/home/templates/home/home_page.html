@@ -13,5 +13,22 @@
 {% endblock content %}
 
 {% comment %}
-This is how you comment in Django
+PAGE QUERYSET REFERENCE
+http://docs.wagtail.io/en/latest/reference/pages/queryset_reference.html
+# Given a page object 'somepage':
+MyModel.objects.descendant_of(somepage)
+child_of(page) / not_child_of(somepage)
+ancestor_of(somepage) / not_ancestor_of(somepage)
+parent_of(somepage) / not_parent_of(somepage)
+sibling_of(somepage) / not_sibling_of(somepage)
+# ... and ...
+somepage.get_children()
+somepage.get_ancestors()
+somepage.get_descendants()
+somepage.get_siblings()
+{% endcomment %}
+
+{% comment %}
+THEORY (trees and leaves)
+http://docs.wagtail.io/en/latest/reference/pages/theory.html
 {% endcomment %}
