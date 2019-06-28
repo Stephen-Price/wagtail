@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 {% load wagtailcore_tags %}
+{% load wagtailcore_tags wagtailimages_tags %}
 
 {% block body_class %}template-blogpage{% endblock %}
 
@@ -15,6 +16,18 @@
     <div class="intro">{{ page.intro }}</div>
 
     {{ page.body|richtext }}
+
+    {% for item in page.gallery_images.all %}
+        <div style="float: left; margin: 10px">
+            {% image item.image fill-320x240 %}
+            <p>{{ item.caption }}</p>
+        </div>
+    {% endfor %}
+
+{% comment %}
+USING IMAGES IN TEMPLATES
+http://docs.wagtail.io/en/latest/topics/images.html
+{% endcomment %}
 
     <p><a href="{{ page.get_parent.url }}">Return to blog</a></p>
 
