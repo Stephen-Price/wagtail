@@ -29,7 +29,7 @@ class BlogPage(Page):
     intro = models.CharField(max_length=250)
     body = RichTextField(blank=True)
 
-    #This method will return the first item from the image gallery if there is one.
+    #This method will return the first item from the image gallery if there is one else none
     def main_image(self):
         gallery_item = self.gallery_images.first()
         if gallery_item:

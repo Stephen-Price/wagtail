@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% load static %}
 {% load wagtailcore_tags %}
+{% load wagtailcore_tags wagtailimages_tags %}
+
+
 
 {% block body_class %}template-blogindexpage{% endblock %}
 
@@ -14,16 +17,30 @@
 
     <div class="intro">{{ page.intro|richtext }}</div>
 
+    {% comment %}
+    Gets data for each post from the blogpages parent model.
+    Post.specific is declared to obtain row level - post specific resuilts
+    {% endcomment %}
     {% for post in blogpages %}
         {% with post=post.specific %}
+
             <h2><a href="{% pageurl post %}">{{ post.title }}</a></h2>
+
+            {% comment %}
+            Thumbnail of first image in gallery for this post
+            {% endcomment %}
+            {% with post.main_image as main_image %}
+                {% if main_image %}{% image main_image fill-160x100 %}{% endif %}
+            {% endwith %}
+
             <p>{{ post.intro }}</p>
             {{ post.body|richtext }}
+
         {% endwith %}
     {% endfor %}
 
 {% comment %}
-This is one way to reach a specific record (leaf) within the blogpage model (node) from the page base class.
+This is a different way to reach a specific record (leaf) within the blogpage model (node) from the page base class.
 The current method is more efficient as it only uses the specific method once vs twice in this form.
 
 I replaced {% for post in page.get_children %} with {% for post in blogpages %} after adding the get_context function to the BlogIndexPage model.
