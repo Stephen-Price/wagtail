@@ -29,7 +29,7 @@ class BlogPage(Page):
     intro = models.CharField(max_length=250)
     body = RichTextField(blank=True)
 
-    #This method will return the first item from the image gallery if there is one else none
+    # This method will return the first item from the image gallery if there is one else none
     def main_image(self):
         gallery_item = self.gallery_images.first()
         if gallery_item:
@@ -49,13 +49,7 @@ class BlogPage(Page):
         InlinePanel('gallery_images', label="Gallery Images"),
     ]
 
-# This model adds a dedicated object type to store images in the DB
-# Orderable inherits a sort_order field to the model
-# Parental key attaches an image to a specific page, similar to Foreign Key but defines the image as a "child" of Blogpage
-# This is useful for CMS operations (moderation, tracking, revision history)
-# image is a Foreign Key to the Wagtail Image model where they are stored. The ImageChooserPanel provides the interface
-# CASCADE on a FK means that if the image is deleted from the system, so will the entry in gallery
-# InlinePanel makes the images available on the editing interface
+
 class BlogPageGalleryImage(Orderable):
     page = ParentalKey(BlogPage, on_delete=models.CASCADE, related_name='gallery_images')
     image = models.ForeignKey(
@@ -67,3 +61,12 @@ class BlogPageGalleryImage(Orderable):
         ImageChooserPanel('image'),
         FieldPanel('caption'),
     ]
+    # This model adds a dedicated object type to store images in the DB
+    # Orderable inherits a sort_order field to the model
+    # Parental key attaches an image to a specific page, similar to Foreign Key
+    # but defines the image as a "child" of Blogpage
+    # This is useful for CMS operations (moderation, tracking, revision history)
+    # image is a Foreign Key to the Wagtail Image model where they are stored.
+    # The ImageChooserPanel provides the interface
+    # CASCADE on a FK means that if the image is deleted from the system, so will the entry in gallery
+    # InlinePanel makes the images available on the editing interface
