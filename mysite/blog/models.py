@@ -76,6 +76,9 @@ class BlogTagIndexPage(Page):
         context = super().get_context(request)
         context['blogpages'] = blogpages
         return context
+# This model will return content based on taggit tags.
+# This model subclasses from Page. Its contents can be accessed via get_context().
+# get_context() returns a QuerySet. We can now give this a title and URL in admin.
 
 
 class BlogPageGalleryImage(Orderable):
