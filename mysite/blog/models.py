@@ -1,6 +1,7 @@
+from django import forms
 from django.db import models
 
-from modelcluster.fields import ParentalKey
+from modelcluster.fields import ParentalKey, ParentalManyToManyField
 from modelcluster.contrib.taggit import ClusterTaggableManager
 from taggit.models import TaggedItemBase
 
@@ -9,6 +10,7 @@ from wagtail.core.fields import RichTextField
 from wagtail.admin.edit_handlers import FieldPanel, InlinePanel, MultiFieldPanel
 from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.search import index
+from wagtail.snippets.models import register_snippet
 
 
 class BlogIndexPage(Page):
@@ -39,6 +41,7 @@ class BlogPage(Page):
     intro = models.CharField(max_length=250)
     body = RichTextField(blank=True)
     tags = ClusterTaggableManager(through=BlogPageTag, blank=True)
+    categories = ParentalManyToManyField('blog.BlogCategory', blank=True)
 
     # This method will return the first item from the image gallery if there is one else none
     def main_image(self):
@@ -48,20 +51,28 @@ class BlogPage(Page):
         else:
             return None
 
+    # Provides panels for the search app
     search_fields = Page.search_fields + [
         index.SearchField('intro'),
         index.SearchField('body'),
     ]
 
+    # Data entry panels for users via admin
     content_panels = Page.content_panels + [
         MultiFieldPanel([
             FieldPanel('date'),
             FieldPanel('tags'),
+            FieldPanel('categories', widget=forms.CheckboxSelectMultiple),
         ], heading="Blog information"),
         FieldPanel('intro'),
         FieldPanel('body'),
         InlinePanel('gallery_images', label="Gallery Images"),
     ]
+# This model uses a ParentalManyToManyField - this is a variant of the standard
+# Django ManyToManyField. It ensures that the chosen objects are correctly
+# stored against the page record in the revision history, in the same way
+# that ParentalKey replaces ForeignKey for one-to-many relations.
+# The snippet uses a widget keyword argument to define the desired interactivity.
 
 
 class BlogTagIndexPage(Page):
@@ -101,3 +112,28 @@ class BlogPageGalleryImage(Orderable):
     # The ImageChooserPanel provides the interface
     # CASCADE on a FK means that if the image is deleted from the system, so will the entry in gallery
     # InlinePanel makes the images available on the editing
+
+
+@register_snippet
+class BlogCategory(models.Model):
+    name = models.CharField(max_length=255)
+    icon = models.ForeignKey(
+        'wagtailimages.Image', null=True, blank=True,
+        on_delete=models.SET_NULL, related_name='+'
+    )
+
+    panels = [
+        FieldPanel('name'),
+        ImageChooserPanel('icon'),
+    ]
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = 'blog categories'
+# This model uses snippets for content that need to be managed via admin but
+# are not part of the Page tree. The @register_snippet decorator registers
+# the model as a snippet for the interface.
+# panels are used here instead of content panels since it is not necessary
+# to seperate content panels from promote panels etc as it would on actual slugs.
